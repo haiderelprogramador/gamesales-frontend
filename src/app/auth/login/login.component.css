@@ -1,0 +1,164 @@
+:host {
+    display: block;
+    height: 100vh;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* CONTENEDOR GENERAL */
+.container {
+    display: flex;
+    height: 100vh;
+    background: #0f0f1a;
+}
+
+/* PANEL IZQUIERDO */
+.left-panel {
+    flex: 1;
+    background: url('https://images.unsplash.com/photo-1605902711622-cfb43c44367f') center/cover no-repeat;
+    position: relative;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+}
+
+/* OSCURECER IMAGEN */
+.left-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+}
+
+.overlay {
+    position: absolute;
+    bottom: 50px;
+    left: 50px;
+    color: white;
+    z-index: 1;
+}
+
+.overlay h1 {
+    font-size: 45px;
+    margin: 0;
+    color: #ff3c3c;
+    text-shadow: 0 0 20px #ff3c3c;
+}
+
+.overlay p {
+    font-size: 18px;
+    opacity: 0.8;
+}
+
+/* PANEL DERECHO */
+.right-panel {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #1a1a2e;
+}
+
+/* CAJA LOGIN */
+.login-box {
+    width: 360px;
+    padding: 45px;
+    background: #16213e;
+    border-radius: 25px;
+    box-shadow: 0 0 40px rgba(255, 60, 60, 0.2);
+    text-align: center;
+    color: white;
+}
+
+.login-box h2 {
+    margin-bottom: 5px;
+    font-size: 28px;
+}
+
+.subtitle {
+    font-size: 14px;
+    margin-bottom: 25px;
+    opacity: 0.7;
+}
+
+/* INPUTS */
+.input-group {
+    margin: 15px 0;
+}
+
+.login-box input {
+    width: 100%;
+    padding: 13px;
+    border-radius: 12px;
+    border: none;
+    background: #0f3460;
+    color: white;
+    outline: none;
+    transition: 0.3s;
+}
+
+.login-box input:focus {
+    box-shadow: 0 0 10px #ff3c3c;
+}
+
+.login-box input::placeholder {
+    color: #bbb;
+}
+
+/* BOTON LOGIN */
+.login-btn {
+    width: 100%;
+    padding: 13px;
+    margin-top: 20px;
+    border-radius: 12px;
+    border: none;
+    background: #ff3c3c;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.login-btn:hover {
+    background: #ff0000;
+    box-shadow: 0 0 20px #ff3c3c;
+    transform: scale(1.05);
+}
+
+/* DIVIDER */
+.divider {
+    margin: 20px 0;
+    font-size: 13px;
+    opacity: 0.6;
+}
+
+/* GOOGLE BUTTON */
+.google-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    background: white;
+    color: black;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.google-btn:hover {
+    transform: scale(1.03);
+}
+
+/* SIGNUP */
+.signup-text {
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+.signup-text span {
+    color: #ff3c3c;
+    cursor: pointer;
+}
+
+.signup-text span:hover {
+    text-decoration: underline;
+}

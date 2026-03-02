@@ -1,0 +1,136 @@
+:host {
+    display: block;
+    height: 100vh;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+    background: #0f0f1a;
+}
+
+/* PANEL IZQUIERDO */
+.left-panel {
+    flex: 1;
+    background: url('https://images.unsplash.com/photo-1511512578047-dfb367046420') center/cover no-repeat;
+    position: relative;
+}
+
+.left-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.overlay {
+    position: absolute;
+    bottom: 50px;
+    left: 50px;
+    color: white;
+    z-index: 1;
+}
+
+.overlay h1 {
+    font-size: 45px;
+    margin: 0;
+    color: #00ffcc;
+    text-shadow: 0 0 20px #00ffcc;
+}
+
+.overlay p {
+    font-size: 18px;
+    opacity: 0.8;
+}
+
+/* PANEL DERECHO */
+.right-panel {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #1a1a2e;
+}
+
+/* CAJA REGISTRO */
+.register-box {
+    width: 380px;
+    padding: 45px;
+    background: #16213e;
+    border-radius: 25px;
+    box-shadow: 0 0 40px rgba(0, 255, 204, 0.2);
+    text-align: center;
+    color: white;
+}
+
+.register-box h2 {
+    margin-bottom: 5px;
+    font-size: 28px;
+}
+
+.subtitle {
+    font-size: 14px;
+    margin-bottom: 25px;
+    opacity: 0.7;
+}
+
+/* INPUTS */
+.input-group {
+    margin: 12px 0;
+}
+
+.register-box input {
+    width: 100%;
+    padding: 13px;
+    border-radius: 12px;
+    border: none;
+    background: #0f3460;
+    color: white;
+    outline: none;
+    transition: 0.3s;
+}
+
+.register-box input:focus {
+    box-shadow: 0 0 10px #00ffcc;
+}
+
+.register-box input::placeholder {
+    color: #bbb;
+}
+
+/* BOTÓN REGISTRO */
+.register-btn {
+    width: 100%;
+    padding: 13px;
+    margin-top: 20px;
+    border-radius: 12px;
+    border: none;
+    background: #00ffcc;
+    color: black;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-weight: bold;
+}
+
+.register-btn:hover {
+    background: #00e6b8;
+    box-shadow: 0 0 20px #00ffcc;
+    transform: scale(1.05);
+}
+
+/* LOGIN LINK */
+.login-text {
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+.login-text span {
+    color: #00ffcc;
+    cursor: pointer;
+}
+
+.login-text span:hover {
+    text-decoration: underline;
+}
