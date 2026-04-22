@@ -1,0 +1,255 @@
+<nav class="steam-nav">
+  <div class="nav-logo" routerLink="/">
+    <i class="fa-solid fa-gamepad"></i>
+    GameSell
+  </div>
+  <div class="nav-links">
+    <a routerLink="/">Tienda</a>
+    <a routerLink="/dashboard" class="nav-active">Mi dashboard</a>
+  </div>
+  <div class="nav-right">
+    <div class="profile-wrap" *ngIf="user" (click)="toggleProfileMenu()">
+      <div class="avatar-sm"
+           [style.background]="isImageAvatar() ? 'none' : (user.avatar || '#221f48')"
+           [style.backgroundImage]="isImageAvatar() ? 'url(' + user.avatar + ')' : 'none'"
+           [style.backgroundSize]="'cover'" [style.backgroundPosition]="'center'">
+        <span *ngIf="!isImageAvatar()">{{getInitials()}}</span>
+      </div>
+      <div class="profile-dropdown" *ngIf="showProfileMenu" (click)="$event.stopPropagation()">
+        <div class="dropdown-header">
+          <div class="dd-avatar"
+               [style.background]="isImageAvatar() ? 'none' : (user.avatar || '#221f48')"
+               [style.backgroundImage]="isImageAvatar() ? 'url(' + user.avatar + ')' : 'none'"
+               [style.backgroundSize]="'cover'" [style.backgroundPosition]="'center'">
+            <span *ngIf="!isImageAvatar()">{{getInitials()}}</span>
+          </div>
+          <div>
+            <div class="dd-name">{{user.nombre}}</div>
+            <div class="dd-email">{{user.email}}</div>
+            <span class="dd-badge empresa">
+              <i class="fa-solid fa-circle" style="font-size:6px"></i> Empresa
+            </span>
+          </div>
+        </div>
+        <div class="dropdown-divider"></div>
+        <a class="dd-item" routerLink="/perfil" (click)="showProfileMenu=false"><i class="fa-solid fa-user"></i> Mi perfil</a>
+        <a class="dd-item" routerLink="/dashboard" (click)="showProfileMenu=false"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+        <div class="dropdown-divider"></div>
+        <button class="dd-item dd-logout" (click)="logout()"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="dash-content">
+
+  <!-- HEADER -->
+  <div class="dash-header">
+    <div>
+      <h1 class="dash-title">
+        <i class="fa-solid fa-chart-line"></i>
+        Panel de vendedor
+      </h1>
+      <p class="dash-sub">Gestiona y publica tus juegos en la plataforma</p>
+    </div>
+    <button class="btn-nuevo" (click)="mostrarFormulario = !mostrarFormulario">
+      <i class="fa-solid" [class.fa-plus]="!mostrarFormulario" [class.fa-xmark]="mostrarFormulario"></i>
+      {{ mostrarFormulario ? 'Cancelar' : 'Publicar juego' }}
+    </button>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon"><i class="fa-solid fa-gamepad"></i></div>
+      <div>
+        <div class="stat-num">{{misJuegos.length}}</div>
+        <div class="stat-label">Juegos publicados</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon green"><i class="fa-solid fa-circle-check"></i></div>
+      <div>
+        <div class="stat-num green">{{contarActivos()}}</div>
+        <div class="stat-label">Activos</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon purple"><i class="fa-solid fa-eye"></i></div>
+      <div>
+        <div class="stat-num purple">—</div>
+        <div class="stat-label">Visitas (backend)</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon yellow"><i class="fa-solid fa-dollar-sign"></i></div>
+      <div>
+        <div class="stat-num yellow">—</div>
+        <div class="stat-label">Ventas (backend)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTIFICACIÓN ÉXITO -->
+  <div class="toast-success" *ngIf="guardadoOk">
+    <i class="fa-solid fa-circle-check"></i>
+    ¡Juego publicado exitosamente!
+  </div>
+
+  <!-- FORMULARIO PUBLICAR -->
+  <div class="form-card" *ngIf="mostrarFormulario">
+    <div class="card-title">
+      <i class="fa-solid fa-upload"></i>
+      Publicar nuevo juego
+    </div>
+
+    <div class="error-msg" *ngIf="errorMsg">
+      <i class="fa-solid fa-circle-exclamation"></i> {{errorMsg}}
+    </div>
+
+    <div class="form-grid">
+      <!-- Nombre -->
+      <div class="field-group span-2">
+        <label class="field-label">Nombre del juego *</label>
+        <div class="field-wrap">
+          <i class="field-icon fa-solid fa-gamepad"></i>
+          <input class="field-input" type="text" placeholder="Ej: Galaxy Warriors: Origins" [(ngModel)]="form.nombre">
+        </div>
+      </div>
+
+      <!-- Precio -->
+      <div class="field-group">
+        <label class="field-label">Precio (USD) *</label>
+        <div class="field-wrap">
+          <i class="field-icon fa-solid fa-dollar-sign"></i>
+          <input class="field-input" type="number" min="0" step="0.01" placeholder="29.99" [(ngModel)]="form.precio">
+        </div>
+      </div>
+
+      <!-- Descuento -->
+      <div class="field-group">
+        <label class="field-label">Descuento (%)</label>
+        <div class="field-wrap">
+          <i class="field-icon fa-solid fa-percent"></i>
+          <input class="field-input" type="number" min="0" max="100" placeholder="0" [(ngModel)]="form.descuento">
+        </div>
+      </div>
+
+      <!-- Imagen -->
+      <div class="field-group span-2">
+        <label class="field-label">URL de imagen de portada</label>
+        <div class="field-wrap">
+          <i class="field-icon fa-solid fa-image"></i>
+          <input class="field-input" type="text" placeholder="https://... (opcional)" [(ngModel)]="form.imagen">
+        </div>
+        <span class="field-hint">Si no colocas una imagen se usará una por defecto.</span>
+      </div>
+
+      <!-- Descripción -->
+      <div class="field-group span-2">
+        <label class="field-label">Descripción *</label>
+        <textarea class="field-textarea" rows="4"
+          placeholder="Describe tu juego: historia, mecánicas, características especiales..."
+          [(ngModel)]="form.descripcion"></textarea>
+      </div>
+
+      <!-- Tags -->
+      <div class="field-group span-2">
+        <label class="field-label">Categorías * <span class="hint-inline">(selecciona las que apliquen)</span></label>
+        <div class="chips-grid">
+          <button *ngFor="let tag of TAGS_DISPONIBLES" type="button"
+            class="chip" [class.chip-active]="tieneTag(tag)"
+            (click)="toggleTag(tag)">
+            {{tag}}
+          </button>
+        </div>
+      </div>
+
+      <!-- Plataformas -->
+      <div class="field-group span-2">
+        <label class="field-label">Plataformas * <span class="hint-inline">(selecciona las compatibles)</span></label>
+        <div class="chips-grid">
+          <button *ngFor="let p of PLATAFORMAS_DISPONIBLES" type="button"
+            class="chip" [class.chip-active]="tienePlataforma(p)"
+            (click)="togglePlataforma(p)">
+            <i class="fa-brands fa-windows" *ngIf="p === 'Windows'"></i>
+            <i class="fa-brands fa-apple" *ngIf="p === 'macOS'"></i>
+            <i class="fa-brands fa-linux" *ngIf="p === 'Linux'"></i>
+            <i class="fa-brands fa-playstation" *ngIf="p === 'PlayStation'"></i>
+            <i class="fa-brands fa-xbox" *ngIf="p === 'Xbox'"></i>
+            {{p}}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preview precio -->
+    <div class="price-preview" *ngIf="form.precio && form.precio > 0">
+      <span class="preview-label">Vista previa del precio:</span>
+      <span class="preview-original" *ngIf="form.descuento > 0">${{form.precio.toFixed(2)}}</span>
+      <span class="preview-badge" *ngIf="form.descuento > 0">-{{form.descuento}}%</span>
+      <span class="preview-final">${{(form.precio * (1 - (form.descuento || 0) / 100)).toFixed(2)}}</span>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn-publicar" (click)="publicar()">
+        <i class="fa-solid fa-upload"></i>
+        Publicar juego
+      </button>
+      <button class="btn-cancel" (click)="cancelar()">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- LISTA DE JUEGOS -->
+  <div class="section-title" *ngIf="misJuegos.length > 0">
+    <i class="fa-solid fa-list"></i>
+    Mis juegos publicados
+  </div>
+
+  <div *ngIf="misJuegos.length === 0 && !mostrarFormulario" class="empty-state">
+    <i class="fa-solid fa-upload empty-icon"></i>
+    <h3>Aún no has publicado ningún juego</h3>
+    <p>Haz clic en "Publicar juego" para agregar tu primer título a la plataforma.</p>
+    <button class="btn-nuevo" (click)="mostrarFormulario = true">
+      <i class="fa-solid fa-plus"></i>
+      Publicar mi primer juego
+    </button>
+  </div>
+
+  <div class="juegos-list" *ngIf="misJuegos.length > 0">
+    <div *ngFor="let juego of misJuegos" class="juego-row">
+      <img [src]="juego.imagen" [alt]="juego.nombre" class="juego-img">
+
+      <div class="juego-info">
+        <div class="juego-nombre">{{juego.nombre}}</div>
+        <div class="juego-meta">
+          <span class="meta-fecha"><i class="fa-regular fa-calendar"></i> {{juego.fechaPublicacion}}</span>
+          <span *ngFor="let p of juego.plataformas" class="meta-plat">{{p}}</span>
+        </div>
+        <div class="juego-tags">
+          <span *ngFor="let tag of juego.tags.slice(0,3)" class="tag">{{tag}}</span>
+        </div>
+      </div>
+
+      <div class="juego-precio">
+        <span class="precio-original" *ngIf="juego.descuento > 0">${{juego.precio.toFixed(2)}}</span>
+        <span class="precio-badge" *ngIf="juego.descuento > 0">-{{juego.descuento}}%</span>
+        <span class="precio-final">${{(juego.precio * (1 - juego.descuento / 100)).toFixed(2)}}</span>
+      </div>
+
+      <div class="juego-estado">
+        <button class="toggle-activo" [class.activo]="juego.activo" (click)="toggleActivo(juego.id)">
+          <i class="fa-solid" [class.fa-eye]="juego.activo" [class.fa-eye-slash]="!juego.activo"></i>
+          {{juego.activo ? 'Visible' : 'Oculto'}}
+        </button>
+      </div>
+
+      <div class="juego-acciones">
+        <button class="btn-eliminar" (click)="eliminar(juego.id)" title="Eliminar juego">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

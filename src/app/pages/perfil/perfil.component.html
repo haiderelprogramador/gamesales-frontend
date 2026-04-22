@@ -1,0 +1,236 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<div class="perfil-page" *ngIf="user">
+
+  <!-- NAVBAR -->
+  <header class="steam-nav">
+    <div class="nav-logo" routerLink="/">
+      <i class="fa-solid fa-gamepad"></i>
+      <span>GameSales</span>
+    </div>
+    <nav class="nav-links">
+      <a routerLink="/">TIENDA</a>
+      <a href="#">COMUNIDAD</a>
+      <a href="#">ACERCA DE</a>
+    </nav>
+    <div class="nav-right">
+      <button routerLink="/" class="btn-back">
+        <i class="fa-solid fa-arrow-left"></i> Volver a la tienda
+      </button>
+      <button class="btn-logout" (click)="logout()">
+        <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
+      </button>
+    </div>
+  </header>
+
+  <!-- COVER BANNER -->
+  <div class="profile-cover">
+    <div class="cover-gradient"></div>
+  </div>
+
+  <!-- PERFIL HEADER -->
+  <div class="profile-header-wrap">
+    <div class="profile-header">
+
+      <!-- AVATAR CON EDICIÓN -->
+      <div class="avatar-edit-wrap">
+        <div class="avatar-lg"
+             [style.background]="isImageAvatar() ? '' : getAvatarBackground()"
+             [style.backgroundImage]="isImageAvatar() ? 'url(' + user.avatar + ')' : ''">
+          <span *ngIf="!isImageAvatar()">{{ getInitials() }}</span>
+        </div>
+
+        <button class="avatar-edit-btn" (click)="showAvatarPanel = !showAvatarPanel">
+          <i class="fa-solid fa-camera"></i>
+        </button>
+
+        <!-- PANEL DE CAMBIO DE AVATAR -->
+        <div class="avatar-panel" *ngIf="showAvatarPanel">
+          <p class="avatar-panel-title">Cambiar foto de perfil</p>
+
+          <label class="upload-btn">
+            <i class="fa-solid fa-upload"></i> Subir imagen
+            <input type="file" accept="image/*" (change)="onAvatarFileChange($event)" hidden>
+          </label>
+
+          <p class="avatar-panel-subtitle">O elige un color:</p>
+          <div class="color-grid">
+            <button
+              *ngFor="let color of avatarColors"
+              class="color-swatch"
+              [style.background]="color"
+              (click)="selectColor(color)">
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- INFO BÁSICA -->
+      <div class="profile-identity">
+        <h1 class="profile-username">{{ user.nombre }}</h1>
+        <span class="profile-email">{{ user.email }}</span>
+        <span class="role-badge" [class.empresa]="user.rol === 'empresa'">
+          <i class="fa-solid" [class.fa-gamepad]="user.rol === 'jugador'" [class.fa-building]="user.rol === 'empresa'"></i>
+          {{ user.rol === 'jugador' ? 'Jugador' : 'Empresa' }}
+        </span>
+      </div>
+
+      <!-- STATS MOCK -->
+      <div class="profile-stats">
+        <div class="stat-item">
+          <span class="stat-num">12</span>
+          <span class="stat-label">Juegos</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">3</span>
+          <span class="stat-label">Deseos</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">247h</span>
+          <span class="stat-label">Jugadas</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CONTENIDO CON TABS -->
+  <div class="perfil-content">
+
+    <!-- TABS -->
+    <div class="perfil-tabs">
+      <button class="ptab" [class.ptab-active]="activeTab === 'info'" (click)="setTab('info')">
+        <i class="fa-solid fa-user"></i> Información personal
+      </button>
+      <button class="ptab" [class.ptab-active]="activeTab === 'seguridad'" (click)="setTab('seguridad')">
+        <i class="fa-solid fa-shield-halved"></i> Seguridad
+      </button>
+    </div>
+
+    <!-- TAB: INFORMACIÓN -->
+    <div class="tab-panel" *ngIf="activeTab === 'info'">
+
+      <div class="form-card">
+        <h2 class="card-title">
+          <i class="fa-solid fa-pen-to-square"></i> Editar perfil
+        </h2>
+
+        <div class="field-group">
+          <label class="field-label">Nombre de usuario</label>
+          <div class="field-wrap">
+            <i class="fa-solid fa-user field-icon"></i>
+            <input class="field-input" type="text" [(ngModel)]="editNombre" placeholder="Tu nombre">
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Correo electrónico</label>
+          <div class="field-wrap">
+            <i class="fa-solid fa-envelope field-icon"></i>
+            <input class="field-input" type="email" [(ngModel)]="editEmail" placeholder="tu@email.com">
+          </div>
+          <span class="field-hint">El email se actualizará cuando conectes el backend.</span>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Rol</label>
+          <div class="field-wrap readonly">
+            <i class="fa-solid fa-shield field-icon"></i>
+            <span class="field-readonly">{{ user.rol === 'jugador' ? 'Jugador' : 'Empresa' }}</span>
+          </div>
+          <span class="field-hint">El rol no se puede cambiar.</span>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn-save" (click)="saveInfo()">
+            <i class="fa-solid fa-floppy-disk"></i> Guardar cambios
+          </button>
+          <div class="save-success" *ngIf="saveSuccess">
+            <i class="fa-solid fa-circle-check"></i> Cambios guardados correctamente
+          </div>
+        </div>
+      </div>
+
+      <!-- TARJETA DE INFO DE CUENTA -->
+      <div class="form-card info-card">
+        <h2 class="card-title">
+          <i class="fa-solid fa-circle-info"></i> Detalles de la cuenta
+        </h2>
+        <div class="info-row">
+          <span class="info-label">Estado</span>
+          <span class="info-val active"><i class="fa-solid fa-circle"></i> Activo</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Tipo de cuenta</span>
+          <span class="info-val">{{ user.rol === 'jugador' ? 'Cuenta personal' : 'Cuenta empresa' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Miembro desde</span>
+          <span class="info-val">2024</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TAB: SEGURIDAD -->
+    <div class="tab-panel" *ngIf="activeTab === 'seguridad'">
+
+      <div class="form-card">
+        <h2 class="card-title">
+          <i class="fa-solid fa-lock"></i> Cambiar contraseña
+        </h2>
+
+        <div class="field-group">
+          <label class="field-label">Contraseña actual</label>
+          <div class="field-wrap">
+            <i class="fa-solid fa-lock field-icon"></i>
+            <input class="field-input" type="password" [(ngModel)]="currentPassword" placeholder="••••••••">
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Nueva contraseña</label>
+          <div class="field-wrap">
+            <i class="fa-solid fa-key field-icon"></i>
+            <input class="field-input" type="password" [(ngModel)]="newPassword" placeholder="Mínimo 6 caracteres">
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Confirmar nueva contraseña</label>
+          <div class="field-wrap">
+            <i class="fa-solid fa-key field-icon"></i>
+            <input class="field-input" type="password" [(ngModel)]="confirmPassword" placeholder="Repite la contraseña">
+          </div>
+        </div>
+
+        <div class="error-msg" *ngIf="passwordError">
+          <i class="fa-solid fa-triangle-exclamation"></i> {{ passwordError }}
+        </div>
+
+        <div class="form-actions">
+          <button class="btn-save" (click)="changePassword()">
+            <i class="fa-solid fa-shield-halved"></i> Actualizar contraseña
+          </button>
+          <div class="save-success" *ngIf="passwordSuccess">
+            <i class="fa-solid fa-circle-check"></i> Contraseña actualizada correctamente
+          </div>
+        </div>
+      </div>
+
+      <!-- ZONA DE PELIGRO -->
+      <div class="form-card danger-card">
+        <h2 class="card-title danger-title">
+          <i class="fa-solid fa-triangle-exclamation"></i> Zona de peligro
+        </h2>
+        <p class="danger-desc">Estas acciones son irreversibles. Procede con cuidado.</p>
+        <button class="btn-danger">
+          <i class="fa-solid fa-trash"></i> Eliminar cuenta
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

@@ -1,0 +1,116 @@
+<nav class="steam-nav">
+  <div class="nav-logo" routerLink="/">
+    <i class="fa-solid fa-gamepad"></i>
+    GameSell
+  </div>
+  <div class="nav-links">
+    <a routerLink="/">Inicio</a>
+    <a routerLink="/">Tienda</a>
+    <a routerLink="/mis-juegos">Mi biblioteca</a>
+    <a routerLink="/wishlist" class="nav-active">Lista de deseos</a>
+  </div>
+  <div class="nav-right">
+    <button class="cart-btn" routerLink="/carrito">
+      <i class="fa-solid fa-bag-shopping"></i>
+    </button>
+    <div class="profile-wrap" *ngIf="user" (click)="toggleProfileMenu()">
+      <div class="avatar-sm"
+           [style.background]="isImageAvatar() ? 'none' : (user.avatar || '#221f48')"
+           [style.backgroundImage]="isImageAvatar() ? 'url(' + user.avatar + ')' : 'none'"
+           [style.backgroundSize]="'cover'" [style.backgroundPosition]="'center'">
+        <span *ngIf="!isImageAvatar()">{{getInitials()}}</span>
+      </div>
+      <div class="profile-dropdown" *ngIf="showProfileMenu" (click)="$event.stopPropagation()">
+        <div class="dropdown-header">
+          <div class="dd-avatar"
+               [style.background]="isImageAvatar() ? 'none' : (user.avatar || '#221f48')"
+               [style.backgroundImage]="isImageAvatar() ? 'url(' + user.avatar + ')' : 'none'"
+               [style.backgroundSize]="'cover'" [style.backgroundPosition]="'center'">
+            <span *ngIf="!isImageAvatar()">{{getInitials()}}</span>
+          </div>
+          <div>
+            <div class="dd-name">{{user.nombre}}</div>
+            <div class="dd-email">{{user.email}}</div>
+            <span class="dd-badge" [class.empresa]="user.rol === 'empresa'">
+              <i class="fa-solid fa-circle" style="font-size:6px"></i>
+              {{user.rol === 'empresa' ? 'Empresa' : 'Jugador'}}
+            </span>
+          </div>
+        </div>
+        <div class="dropdown-divider"></div>
+        <a class="dd-item" routerLink="/perfil" (click)="showProfileMenu=false"><i class="fa-solid fa-user"></i> Mi perfil</a>
+        <a class="dd-item" routerLink="/mis-juegos" (click)="showProfileMenu=false"><i class="fa-solid fa-gamepad"></i> Mi biblioteca</a>
+        <a class="dd-item" routerLink="/wishlist" (click)="showProfileMenu=false"><i class="fa-solid fa-heart"></i> Lista de deseos</a>
+        <a class="dd-item" routerLink="/carrito" (click)="showProfileMenu=false"><i class="fa-solid fa-bag-shopping"></i> Carrito</a>
+        <div class="dropdown-divider"></div>
+        <button class="dd-item dd-logout" (click)="logout()"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="page-content">
+  <div class="page-header">
+    <div class="page-header-inner">
+      <div class="header-left">
+        <h1 class="page-title">
+          <i class="fa-solid fa-heart"></i>
+          Lista de deseos
+        </h1>
+        <p class="page-sub">Juegos que quieres conseguir</p>
+      </div>
+      <div class="header-stat" *ngIf="items.length > 0">
+        <span class="stat-num">{{items.length}}</span>
+        <span class="stat-label">{{items.length === 1 ? 'Juego' : 'Juegos'}}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vacío -->
+  <div *ngIf="items.length === 0" class="empty-state">
+    <i class="fa-solid fa-heart empty-icon"></i>
+    <h2>Tu lista de deseos está vacía</h2>
+    <p>Agrega juegos a tu lista de deseos para no perderlos de vista y comprarlos cuando quieras.</p>
+    <button routerLink="/" class="btn-primary">
+      <i class="fa-solid fa-store"></i>
+      Explorar tienda
+    </button>
+  </div>
+
+  <!-- Lista -->
+  <div *ngIf="items.length > 0" class="wishlist-list">
+    <div *ngFor="let item of items" class="wish-item">
+      <img [src]="item.imagen" [alt]="item.nombre" class="wish-img">
+
+      <div class="wish-info">
+        <h3 class="wish-name">{{item.nombre}}</h3>
+        <div class="wish-meta">
+          <span *ngIf="item.developer" class="wish-dev">{{item.developer}}</span>
+          <span *ngIf="item.fechaAgregado" class="wish-date">
+            <i class="fa-regular fa-calendar"></i> Agregado el {{item.fechaAgregado}}
+          </span>
+        </div>
+        <div class="wish-tags" *ngIf="item.tags && item.tags.length">
+          <span *ngFor="let tag of item.tags.slice(0,3)" class="tag">{{tag}}</span>
+        </div>
+      </div>
+
+      <div class="wish-price">
+        <span class="price">${{item.precio.toFixed(2)}}</span>
+      </div>
+
+      <div class="wish-actions">
+        <button
+          class="btn-cart"
+          [class.btn-added]="isAddedToCart(item.nombre)"
+          (click)="addToCart(item)">
+          <i class="fa-solid" [class.fa-check]="isAddedToCart(item.nombre)" [class.fa-bag-shopping]="!isAddedToCart(item.nombre)"></i>
+          {{isAddedToCart(item.nombre) ? 'Agregado' : 'Al carrito'}}
+        </button>
+        <button class="btn-remove" (click)="remove(item.nombre)" title="Quitar de la lista">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

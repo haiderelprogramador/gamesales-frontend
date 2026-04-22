@@ -1,10 +1,446 @@
-<h1>NexusPlay</h1>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-<div class="buttons">
-  <button routerLink="/login">Iniciar sesión</button>
-  <button routerLink="/registrar" class="register-btn">Registrarse</button>
+<!-- NAVBAR PRINCIPAL -->
+<header class="steam-nav">
+  <div class="nav-logo">
+    <i class="fa-solid fa-gamepad"></i>
+    <span>GameSales</span>
+  </div>
+
+  <nav class="nav-links">
+    <a href="#">TIENDA</a>
+    <a href="#">COMUNIDAD</a>
+    <a href="#">ACERCA DE</a>
+    <a href="#">SOPORTE</a>
+  </nav>
+
+  <div class="nav-right">
+    <div class="search-wrap">
+      <input type="text" placeholder="Buscar en la tienda...">
+      <button class="search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+    </div>
+
+    <!-- Sin sesión -->
+    <ng-container *ngIf="!user">
+      <button routerLink="/login" class="btn-login">Iniciar sesión</button>
+      <button routerLink="/registrar" class="btn-register">Registrarse</button>
+    </ng-container>
+
+    <!-- Con sesión: avatar + dropdown -->
+    <div class="profile-wrap" *ngIf="user">
+      <button class="profile-btn" (click)="toggleProfileMenu()">
+        <div class="avatar-circle">{{ getInitials() }}</div>
+        <span class="profile-name">{{ user.nombre }}</span>
+        <i class="fa-solid fa-chevron-down profile-chevron" [class.rotated]="showProfileMenu"></i>
+      </button>
+
+      <div class="profile-dropdown" *ngIf="showProfileMenu">
+        <!-- Cabecera del dropdown -->
+        <div class="dropdown-header">
+          <div class="dropdown-avatar">{{ getInitials() }}</div>
+          <div class="dropdown-user-info">
+            <span class="dropdown-name">{{ user.nombre }}</span>
+            <span class="dropdown-email">{{ user.email }}</span>
+            <span class="dropdown-role" [class.empresa]="user.rol === 'empresa'">
+              <i class="fa-solid" [class.fa-gamepad]="user.rol === 'jugador'" [class.fa-building]="user.rol === 'empresa'"></i>
+              {{ user.rol === 'jugador' ? 'Jugador' : 'Empresa' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="dropdown-divider"></div>
+
+        <!-- Opciones -->
+        <a class="dropdown-item" routerLink="/perfil">
+          <i class="fa-solid fa-user"></i> Mi perfil
+        </a>
+        <a class="dropdown-item" routerLink="/mis-juegos" *ngIf="user.rol === 'jugador'">
+          <i class="fa-solid fa-gamepad"></i> Mis juegos
+        </a>
+        <a class="dropdown-item" routerLink="/wishlist" *ngIf="user.rol === 'jugador'">
+          <i class="fa-solid fa-heart"></i> Lista de deseos
+        </a>
+        <a class="dropdown-item" routerLink="/dashboard" *ngIf="user.rol === 'empresa'">
+          <i class="fa-solid fa-chart-line"></i> Mi dashboard
+        </a>
+        <a class="dropdown-item" routerLink="/carrito">
+          <i class="fa-solid fa-cart-shopping"></i> Carrito
+          <span class="badge-count" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
+        </a>
+        <a class="dropdown-item" routerLink="/perfil">
+          <i class="fa-solid fa-gear"></i> Configuración
+        </a>
+
+        <div class="dropdown-divider"></div>
+
+        <button class="dropdown-item logout-item" (click)="logout()">
+          <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
+        </button>
+      </div>
+    </div>
+
+    <button routerLink="/carrito" class="btn-cart">
+      <i class="fa-solid fa-cart-shopping"></i>
+      <span class="cart-badge" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
+    </button>
+  </div>
+</header>
+
+<!-- SUBNAV -->
+<nav class="subnav">
+  <a href="#" class="subnav-active">Tu tienda</a>
+  <a href="#">Novedades</a>
+  <a href="#">Categorías</a>
+  <a href="#">Puntos</a>
+  <a href="#">Noticias</a>
+  <a href="#">Laboratorio</a>
+</nav>
+
+<!-- JUEGO DESTACADO -->
+<section class="featured">
+  <div class="featured-media">
+    <img class="featured-main-img" src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=900" alt="Cyber Nexus: Reborn">
+    <div class="featured-thumbs">
+      <img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=200" alt="" class="thumb-active">
+      <img src="https://images.unsplash.com/photo-1560419015-7c427e8ae5ba?w=200" alt="">
+      <img src="https://images.unsplash.com/photo-1552820728-8b83bb6b773f?w=200" alt="">
+      <img src="https://images.unsplash.com/photo-1535223289429-462ea9301402?w=200" alt="">
+    </div>
+  </div>
+
+  <div class="featured-info">
+    <h2 class="featured-game-title">Cyber Nexus: Reborn</h2>
+
+    <div class="featured-tags">
+      <span>Acción</span>
+      <span>Cyberpunk</span>
+      <span>RPG</span>
+      <span>Mundo abierto</span>
+    </div>
+
+    <div class="featured-reviews">
+      <span class="review-positive"><i class="fa-solid fa-thumbs-up"></i> Muy positivas</span>
+      <span class="review-count">(12,483 reseñas)</span>
+    </div>
+
+    <p class="featured-desc">
+      Explora una ciudad futurista llena de tecnología, hackers y corporaciones
+      poderosas. Toma decisiones que cambiarán el destino de Neo-Tokyo en este
+      RPG de mundo abierto con acción imparable.
+    </p>
+
+    <div class="featured-price-row">
+      <div class="discount-badge">-33%</div>
+      <div class="price-stack">
+        <span class="orig-price">$59.99</span>
+        <span class="sale-price">$39.99</span>
+      </div>
+    </div>
+
+    <button class="btn-add-cart" (click)="addToCart()">
+      <i class="fa-solid fa-cart-plus"></i>
+      Agregar al carrito
+    </button>
+
+    <button class="btn-ver-detalle" routerLink="/juego/cyber-nexus-reborn">
+      <i class="fa-solid fa-circle-info"></i>
+      Ver más detalles
+    </button>
+
+    <p class="featured-note">
+      <i class="fa-solid fa-circle-info"></i>
+      Descarga inmediata &bull; Sin DRM &bull; Activación global
+    </p>
+  </div>
+</section>
+
+<!-- SECCION PRINCIPAL CON TABS -->
+<section class="store-section">
+  <div class="section-header">
+    <div class="section-tabs">
+      <button class="tab-btn" [class.tab-active]="activeTab === 'destacados'" (click)="setTab('destacados')">
+        <i class="fa-solid fa-star"></i> Destacados
+      </button>
+      <button class="tab-btn" [class.tab-active]="activeTab === 'novedades'" (click)="setTab('novedades')">
+        <i class="fa-solid fa-bolt"></i> Novedades
+      </button>
+      <button class="tab-btn" [class.tab-active]="activeTab === 'vendidos'" (click)="setTab('vendidos')">
+        <i class="fa-solid fa-chart-line"></i> Más vendidos
+      </button>
+      <button class="tab-btn" [class.tab-active]="activeTab === 'especiales'" (click)="setTab('especiales')">
+        <i class="fa-solid fa-tag"></i> Especiales
+      </button>
+    </div>
+    <a href="#" class="ver-todos">Ver todos <i class="fa-solid fa-chevron-right"></i></a>
+  </div>
+
+  <div class="games-grid">
+
+    <div class="game-card" routerLink="/juego/dragons-wrath">
+      <div class="card-img-wrap">
+        <img src="https://images.unsplash.com/photo-1560419015-7c427e8ae5ba?w=400" alt="Dragon's Wrath">
+        <div class="card-discount">-45%</div>
+      </div>
+      <div class="card-body">
+        <h3>Dragon's Wrath</h3>
+        <div class="card-tags"><span>RPG</span><span>Fantasía</span><span>Un jugador</span></div>
+        <div class="card-reviews positive"><i class="fa-solid fa-thumbs-up"></i> Muy positivas</div>
+        <div class="card-price-row">
+          <span class="card-orig">$54.99</span>
+          <span class="card-price">$29.99</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="game-card" routerLink="/juego/velocity-x">
+      <div class="card-img-wrap">
+        <img src="https://images.unsplash.com/photo-1553481187-be93c21490a9?w=400" alt="Velocity X">
+        <div class="card-discount">-35%</div>
+      </div>
+      <div class="card-body">
+        <h3>Velocity X</h3>
+        <div class="card-tags"><span>Carreras</span><span>Multijugador</span></div>
+        <div class="card-reviews positive"><i class="fa-solid fa-thumbs-up"></i> Positivas</div>
+        <div class="card-price-row">
+          <span class="card-orig">$30.99</span>
+          <span class="card-price">$19.99</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="game-card" routerLink="/juego/whimsy-world">
+      <div class="card-img-wrap">
+        <img src="https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?w=400" alt="Whimsy World">
+        <div class="card-discount">-25%</div>
+      </div>
+      <div class="card-body">
+        <h3>Whimsy World</h3>
+        <div class="card-tags"><span>Aventura</span><span>Casual</span><span>Indie</span></div>
+        <div class="card-reviews positive"><i class="fa-solid fa-thumbs-up"></i> Abrumadoramente positivas</div>
+        <div class="card-price-row">
+          <span class="card-orig">$19.99</span>
+          <span class="card-price">$14.99</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="game-card" routerLink="/juego/netrunner-2088">
+      <div class="card-img-wrap">
+        <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=400" alt="NetRunner 2088">
+        <div class="card-discount">-40%</div>
+      </div>
+      <div class="card-body">
+        <h3>NetRunner 2088</h3>
+        <div class="card-tags"><span>Cyberpunk</span><span>Sigilo</span></div>
+        <div class="card-reviews mixed"><i class="fa-solid fa-thumbs-up"></i> Mayormente positivas</div>
+        <div class="card-price-row">
+          <span class="card-orig">$49.99</span>
+          <span class="card-price">$29.99</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="game-card" routerLink="/juego/shadow-protocol">
+      <div class="card-img-wrap">
+        <img src="https://images.unsplash.com/photo-1535223289429-462ea9301402?w=400" alt="Shadow Protocol">
+        <div class="card-discount">-20%</div>
+      </div>
+      <div class="card-body">
+        <h3>Shadow Protocol</h3>
+        <div class="card-tags"><span>Acción</span><span>Sigilo</span></div>
+        <div class="card-reviews positive"><i class="fa-solid fa-thumbs-up"></i> Muy positivas</div>
+        <div class="card-price-row">
+          <span class="card-orig">$44.99</span>
+          <span class="card-price">$35.99</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="game-card" routerLink="/juego/galactic-wars">
+      <div class="card-img-wrap">
+        <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400" alt="Galactic Wars">
+      </div>
+      <div class="card-body">
+        <h3>Galactic Wars</h3>
+        <div class="card-tags"><span>Estrategia</span><span>Sci-Fi</span><span>Multijugador</span></div>
+        <div class="card-reviews positive"><i class="fa-solid fa-thumbs-up"></i> Positivas</div>
+        <div class="card-price-row">
+          <span class="card-price free">Gratis</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="game-card" routerLink="/juego/iron-fortress">
+      <div class="card-img-wrap">
+        <img src="https://images.unsplash.com/photo-1552820728-8b83bb6b773f?w=400" alt="Iron Fortress">
+        <div class="card-discount">-60%</div>
+      </div>
+      <div class="card-body">
+        <h3>Iron Fortress</h3>
+        <div class="card-tags"><span>Disparos</span><span>Multijugador</span></div>
+        <div class="card-reviews positive"><i class="fa-solid fa-thumbs-up"></i> Muy positivas</div>
+        <div class="card-price-row">
+          <span class="card-orig">$39.99</span>
+          <span class="card-price">$15.99</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="game-card" routerLink="/juego/pixel-kingdom">
+      <div class="card-img-wrap">
+        <img src="https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?w=400" alt="Pixel Kingdom">
+        <div class="card-discount">-10%</div>
+      </div>
+      <div class="card-body">
+        <h3>Pixel Kingdom</h3>
+        <div class="card-tags"><span>Indie</span><span>Pixel Art</span></div>
+        <div class="card-reviews positive"><i class="fa-solid fa-thumbs-up"></i> Abrumadoramente positivas</div>
+        <div class="card-price-row">
+          <span class="card-orig">$11.99</span>
+          <span class="card-price">$10.79</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- OFERTAS DE LA SEMANA -->
+<section class="weekly-deals">
+  <div class="deals-header">
+    <h2><i class="fa-solid fa-fire"></i> Ofertas de la semana</h2>
+    <div class="deals-timer">
+      <i class="fa-regular fa-clock"></i> Termina en 3d 14h 22m
+    </div>
+    <a href="#" class="ver-todos">Ver todas <i class="fa-solid fa-chevron-right"></i></a>
+  </div>
+
+  <div class="deals-list">
+
+    <div class="deal-row">
+      <img src="https://images.unsplash.com/photo-1560419015-7c427e8ae5ba?w=240" alt="Dragon's Wrath">
+      <div class="deal-info">
+        <span class="deal-name">Dragon's Wrath</span>
+        <div class="deal-tags"><span>RPG</span><span>Fantasía</span></div>
+      </div>
+      <div class="deal-reviews positive">Muy positivas</div>
+      <div class="deal-price-area">
+        <div class="deal-discount">-45%</div>
+        <div class="deal-prices">
+          <span class="deal-orig">$54.99</span>
+          <span class="deal-sale">$29.99</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="deal-row">
+      <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=240" alt="NetRunner 2088">
+      <div class="deal-info">
+        <span class="deal-name">NetRunner 2088</span>
+        <div class="deal-tags"><span>Cyberpunk</span><span>Sigilo</span></div>
+      </div>
+      <div class="deal-reviews positive">Mayormente positivas</div>
+      <div class="deal-price-area">
+        <div class="deal-discount">-40%</div>
+        <div class="deal-prices">
+          <span class="deal-orig">$49.99</span>
+          <span class="deal-sale">$29.99</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="deal-row">
+      <img src="https://images.unsplash.com/photo-1552820728-8b83bb6b773f?w=240" alt="Iron Fortress">
+      <div class="deal-info">
+        <span class="deal-name">Iron Fortress</span>
+        <div class="deal-tags"><span>Disparos</span><span>Multijugador</span></div>
+      </div>
+      <div class="deal-reviews positive">Muy positivas</div>
+      <div class="deal-price-area">
+        <div class="deal-discount">-60%</div>
+        <div class="deal-prices">
+          <span class="deal-orig">$39.99</span>
+          <span class="deal-sale">$15.99</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="deal-row">
+      <img src="https://images.unsplash.com/photo-1553481187-be93c21490a9?w=240" alt="Velocity X">
+      <div class="deal-info">
+        <span class="deal-name">Velocity X</span>
+        <div class="deal-tags"><span>Carreras</span><span>Multijugador</span></div>
+      </div>
+      <div class="deal-reviews positive">Positivas</div>
+      <div class="deal-price-area">
+        <div class="deal-discount">-35%</div>
+        <div class="deal-prices">
+          <span class="deal-orig">$30.99</span>
+          <span class="deal-sale">$19.99</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- EXPLORAR POR CATEGORIA -->
+<section class="categories-section">
+  <h2>Explorar por categoría</h2>
+  <div class="categories-grid">
+    <div class="cat-card"><i class="fa-solid fa-crosshairs"></i> Acción</div>
+    <div class="cat-card"><i class="fa-solid fa-dragon"></i> RPG</div>
+    <div class="cat-card"><i class="fa-solid fa-car-side"></i> Deportes y Carreras</div>
+    <div class="cat-card"><i class="fa-solid fa-chess"></i> Estrategia</div>
+    <div class="cat-card"><i class="fa-solid fa-map"></i> Aventura</div>
+    <div class="cat-card"><i class="fa-solid fa-users"></i> Multijugador</div>
+    <div class="cat-card"><i class="fa-solid fa-puzzle-piece"></i> Indie</div>
+    <div class="cat-card"><i class="fa-solid fa-vr-cardboard"></i> Simulación</div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="steam-footer">
+  <div class="footer-top">
+    <div class="footer-logo">
+      <i class="fa-solid fa-gamepad"></i> GameSales
+    </div>
+    <div class="footer-links">
+      <div class="footer-col">
+        <h4>Tienda</h4>
+        <a href="#">Inicio</a>
+        <a href="#">Descubrimiento</a>
+        <a href="#">Carrito</a>
+        <a href="#">Puntos</a>
+      </div>
+      <div class="footer-col">
+        <h4>Comunidad</h4>
+        <a href="#">Inicio</a>
+        <a href="#">Foro</a>
+        <a href="#">Reseñas</a>
+      </div>
+      <div class="footer-col">
+        <h4>Acerca de</h4>
+        <a href="#">GameSales</a>
+        <a href="#">Empleos</a>
+        <a href="#">Prensa</a>
+      </div>
+      <div class="footer-col">
+        <h4>Soporte</h4>
+        <a href="#">Ayuda</a>
+        <a href="#">Privacidad</a>
+        <a href="#">Legal</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2024 GameSales. Todos los derechos reservados.</p>
+    <p>Los precios mostrados en dólares estadounidenses.</p>
+  </div>
+</footer>
+
+<!-- NOTIFICACION CARRITO -->
+<div class="notification" *ngIf="showNotification">
+  <i class="fa-solid fa-circle-check"></i>
+  <strong>{{ lastAddedProduct }}</strong> agregado al carrito
 </div>
-
-<h2>Bienvenido a la tienda</h2>
-
-<router-outlet></router-outlet>

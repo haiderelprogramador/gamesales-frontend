@@ -1,0 +1,151 @@
+<nav class="steam-nav">
+  <div class="nav-logo" routerLink="/">
+    <i class="fa-solid fa-gamepad"></i>
+    GameSell
+  </div>
+
+  <div class="nav-links">
+    <a routerLink="/">Inicio</a>
+    <a routerLink="/" class="nav-active">Tienda</a>
+    <a routerLink="/">Categorías</a>
+    <a routerLink="/">Ofertas</a>
+  </div>
+
+  <div class="nav-right">
+    <!-- Carrito -->
+    <button class="cart-btn" routerLink="/carrito">
+      <i class="fa-solid fa-bag-shopping"></i>
+      <span *ngIf="items.length > 0" class="cart-count">{{items.length}}</span>
+    </button>
+
+    <!-- No logueado -->
+    <ng-container *ngIf="!user">
+      <button class="btn-login" routerLink="/login">Iniciar sesión</button>
+      <button class="btn-register" routerLink="/registrar">Registrarse</button>
+    </ng-container>
+
+    <!-- Logueado -->
+    <div class="profile-wrap" *ngIf="user" (click)="toggleProfileMenu()">
+      <div class="avatar-sm"
+           [style.background]="isImageAvatar() ? 'none' : (user.avatar || '#221f48')"
+           [style.backgroundImage]="isImageAvatar() ? 'url(' + user.avatar + ')' : 'none'"
+           [style.backgroundSize]="'cover'"
+           [style.backgroundPosition]="'center'">
+        <span *ngIf="!isImageAvatar()">{{getInitials()}}</span>
+      </div>
+
+      <div class="profile-dropdown" *ngIf="showProfileMenu" (click)="$event.stopPropagation()">
+        <div class="dropdown-header">
+          <div class="dd-avatar"
+               [style.background]="isImageAvatar() ? 'none' : (user.avatar || '#221f48')"
+               [style.backgroundImage]="isImageAvatar() ? 'url(' + user.avatar + ')' : 'none'"
+               [style.backgroundSize]="'cover'"
+               [style.backgroundPosition]="'center'">
+            <span *ngIf="!isImageAvatar()">{{getInitials()}}</span>
+          </div>
+          <div>
+            <div class="dd-name">{{user.nombre}}</div>
+            <div class="dd-email">{{user.email}}</div>
+            <span class="dd-badge" [class.empresa]="user.rol === 'empresa'">
+              <i class="fa-solid fa-circle" style="font-size:6px"></i>
+              {{user.rol === 'empresa' ? 'Empresa' : 'Jugador'}}
+            </span>
+          </div>
+        </div>
+        <div class="dropdown-divider"></div>
+        <a class="dd-item" routerLink="/perfil" (click)="showProfileMenu=false">
+          <i class="fa-solid fa-user"></i> Mi perfil
+        </a>
+        <a class="dd-item" routerLink="/carrito" (click)="showProfileMenu=false">
+          <i class="fa-solid fa-bag-shopping"></i> Carrito
+        </a>
+        <div class="dropdown-divider"></div>
+        <button class="dd-item dd-logout" (click)="logout()">
+          <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="carrito-container">
+  <div class="carrito-header">
+    <h2>
+      <i class="fa-solid fa-bag-shopping"></i>
+      Mi Carrito
+      <span class="item-count" *ngIf="items.length > 0">{{items.length}} {{items.length === 1 ? 'juego' : 'juegos'}}</span>
+    </h2>
+    <button *ngIf="items.length > 0" class="clear-cart" (click)="vaciarCarrito()">
+      <i class="fa-solid fa-trash-can"></i>
+      Vaciar carrito
+    </button>
+  </div>
+
+  <!-- Carrito vacío -->
+  <div *ngIf="items.length === 0" class="carrito-vacio">
+    <i class="fa-solid fa-bag-shopping empty-icon"></i>
+    <h3>Tu carrito está vacío</h3>
+    <p>Aún no has agregado ningún juego a tu carrito.</p>
+    <button routerLink="/" class="btn-explorar">
+      <i class="fa-solid fa-gamepad"></i>
+      Explorar juegos
+    </button>
+  </div>
+
+  <!-- Carrito con items -->
+  <div *ngIf="items.length > 0" class="carrito-lleno">
+    <div class="carrito-items">
+      <div *ngFor="let item of items; let i = index" class="carrito-item">
+        <img [src]="item.imagen" alt="{{item.nombre}}" class="item-img">
+
+        <div class="item-detalles">
+          <h3 class="item-nombre">{{item.nombre}}</h3>
+          <div class="item-tags">
+            <span class="tag">Juego Digital</span>
+            <span class="tag">Descarga Inmediata</span>
+          </div>
+        </div>
+
+        <div class="item-precio">
+          <span class="precio-actual">${{item.precio.toFixed(2)}}</span>
+        </div>
+
+        <button class="btn-eliminar" (click)="eliminar(i)" title="Eliminar">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="carrito-resumen">
+      <div class="resumen-title">
+        <i class="fa-solid fa-receipt"></i>
+        Resumen de compra
+      </div>
+
+      <div class="resumen-lineas">
+        <div class="resumen-linea">
+          <span>Subtotal ({{items.length}} {{items.length === 1 ? 'juego' : 'juegos'}})</span>
+          <span>${{total.toFixed(2)}}</span>
+        </div>
+        <div class="resumen-linea green">
+          <span>Envío digital</span>
+          <span>Gratis</span>
+        </div>
+        <div class="resumen-linea total">
+          <span>Total</span>
+          <span>${{total.toFixed(2)}}</span>
+        </div>
+      </div>
+
+      <button class="btn-pagar" (click)="procederPago()">
+        <i class="fa-solid fa-credit-card"></i>
+        Proceder al pago
+      </button>
+
+      <button routerLink="/" class="btn-seguir">
+        <i class="fa-solid fa-arrow-left"></i>
+        Seguir comprando
+      </button>
+    </div>
+  </div>
+</div>

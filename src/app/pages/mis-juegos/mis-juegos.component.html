@@ -1,0 +1,108 @@
+<nav class="steam-nav">
+  <div class="nav-logo" routerLink="/">
+    <i class="fa-solid fa-gamepad"></i>
+    GameSell
+  </div>
+  <div class="nav-links">
+    <a routerLink="/">Inicio</a>
+    <a routerLink="/">Tienda</a>
+    <a routerLink="/mis-juegos" class="nav-active">Mi biblioteca</a>
+    <a routerLink="/wishlist">Lista de deseos</a>
+  </div>
+  <div class="nav-right">
+    <button class="cart-btn" routerLink="/carrito">
+      <i class="fa-solid fa-bag-shopping"></i>
+    </button>
+    <div class="profile-wrap" *ngIf="user" (click)="toggleProfileMenu()">
+      <div class="avatar-sm"
+           [style.background]="isImageAvatar() ? 'none' : (user.avatar || '#221f48')"
+           [style.backgroundImage]="isImageAvatar() ? 'url(' + user.avatar + ')' : 'none'"
+           [style.backgroundSize]="'cover'" [style.backgroundPosition]="'center'">
+        <span *ngIf="!isImageAvatar()">{{getInitials()}}</span>
+      </div>
+      <div class="profile-dropdown" *ngIf="showProfileMenu" (click)="$event.stopPropagation()">
+        <div class="dropdown-header">
+          <div class="dd-avatar"
+               [style.background]="isImageAvatar() ? 'none' : (user.avatar || '#221f48')"
+               [style.backgroundImage]="isImageAvatar() ? 'url(' + user.avatar + ')' : 'none'"
+               [style.backgroundSize]="'cover'" [style.backgroundPosition]="'center'">
+            <span *ngIf="!isImageAvatar()">{{getInitials()}}</span>
+          </div>
+          <div>
+            <div class="dd-name">{{user.nombre}}</div>
+            <div class="dd-email">{{user.email}}</div>
+            <span class="dd-badge" [class.empresa]="user.rol === 'empresa'">
+              <i class="fa-solid fa-circle" style="font-size:6px"></i>
+              {{user.rol === 'empresa' ? 'Empresa' : 'Jugador'}}
+            </span>
+          </div>
+        </div>
+        <div class="dropdown-divider"></div>
+        <a class="dd-item" routerLink="/perfil" (click)="showProfileMenu=false"><i class="fa-solid fa-user"></i> Mi perfil</a>
+        <a class="dd-item" routerLink="/mis-juegos" (click)="showProfileMenu=false"><i class="fa-solid fa-gamepad"></i> Mi biblioteca</a>
+        <a class="dd-item" routerLink="/wishlist" (click)="showProfileMenu=false"><i class="fa-solid fa-heart"></i> Lista de deseos</a>
+        <a class="dd-item" routerLink="/carrito" (click)="showProfileMenu=false"><i class="fa-solid fa-bag-shopping"></i> Carrito</a>
+        <div class="dropdown-divider"></div>
+        <button class="dd-item dd-logout" (click)="logout()"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="page-content">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="page-header-inner">
+      <div class="header-left">
+        <h1 class="page-title">
+          <i class="fa-solid fa-gamepad"></i>
+          Mi Biblioteca
+        </h1>
+        <p class="page-sub">Todos tus juegos en un solo lugar</p>
+      </div>
+      <div class="header-stat" *ngIf="games.length > 0">
+        <span class="stat-num">{{games.length}}</span>
+        <span class="stat-label">{{games.length === 1 ? 'Juego' : 'Juegos'}}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vacío -->
+  <div *ngIf="games.length === 0" class="empty-state">
+    <i class="fa-solid fa-gamepad empty-icon"></i>
+    <h2>Tu biblioteca está vacía</h2>
+    <p>Los juegos que compres aparecerán aquí para que puedas acceder a ellos en cualquier momento.</p>
+    <button routerLink="/" class="btn-primary">
+      <i class="fa-solid fa-store"></i>
+      Ir a la tienda
+    </button>
+  </div>
+
+  <!-- Grid de juegos -->
+  <div *ngIf="games.length > 0" class="games-grid">
+    <div *ngFor="let game of games" class="game-card">
+      <div class="game-img-wrap">
+        <img [src]="game.imagen" [alt]="game.nombre" class="game-img">
+        <div class="game-overlay">
+          <button class="btn-play">
+            <i class="fa-solid fa-play"></i>
+            Jugar
+          </button>
+        </div>
+      </div>
+      <div class="game-info">
+        <h3 class="game-name">{{game.nombre}}</h3>
+        <div class="game-meta">
+          <span class="meta-dev" *ngIf="game.developer">{{game.developer}}</span>
+          <span class="meta-date" *ngIf="game.fechaCompra">
+            <i class="fa-regular fa-calendar"></i>
+            {{game.fechaCompra}}
+          </span>
+        </div>
+        <div class="game-tags" *ngIf="game.tags && game.tags.length">
+          <span *ngFor="let tag of game.tags.slice(0,3)" class="tag">{{tag}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

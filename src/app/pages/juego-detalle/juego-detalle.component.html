@@ -1,0 +1,315 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<div class="detalle-page" *ngIf="juego">
+
+  <!-- NAVBAR -->
+  <header class="steam-nav">
+    <div class="nav-logo" routerLink="/">
+      <i class="fa-solid fa-gamepad"></i>
+      <span>GameSales</span>
+    </div>
+    <nav class="nav-links">
+      <a routerLink="/">TIENDA</a>
+      <a href="#">COMUNIDAD</a>
+      <a href="#">ACERCA DE</a>
+    </nav>
+    <div class="nav-right">
+      <div class="search-wrap">
+        <input type="text" placeholder="Buscar en la tienda...">
+        <button class="search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+      </div>
+
+      <!-- Sin sesión -->
+      <ng-container *ngIf="!user">
+        <button routerLink="/login" class="btn-login">Iniciar sesión</button>
+      </ng-container>
+
+      <!-- Con sesión: avatar + dropdown -->
+      <div class="profile-wrap" *ngIf="user">
+        <button class="profile-btn" (click)="toggleProfileMenu()">
+          <div class="avatar-circle">{{ getInitials() }}</div>
+          <span class="profile-name">{{ user.nombre }}</span>
+          <i class="fa-solid fa-chevron-down profile-chevron" [class.rotated]="showProfileMenu"></i>
+        </button>
+
+        <div class="profile-dropdown" *ngIf="showProfileMenu">
+          <div class="dropdown-header">
+            <div class="dropdown-avatar">{{ getInitials() }}</div>
+            <div class="dropdown-user-info">
+              <span class="dropdown-name">{{ user.nombre }}</span>
+              <span class="dropdown-email">{{ user.email }}</span>
+              <span class="dropdown-role" [class.empresa]="user.rol === 'empresa'">
+                <i class="fa-solid" [class.fa-gamepad]="user.rol === 'jugador'" [class.fa-building]="user.rol === 'empresa'"></i>
+                {{ user.rol === 'jugador' ? 'Jugador' : 'Empresa' }}
+              </span>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" routerLink="/perfil">
+            <i class="fa-solid fa-user"></i> Mi perfil
+          </a>
+          <a class="dropdown-item" routerLink="/mis-juegos">
+            <i class="fa-solid fa-gamepad"></i> Mis juegos
+          </a>
+          <a class="dropdown-item" routerLink="/carrito">
+            <i class="fa-solid fa-cart-shopping"></i> Carrito
+          </a>
+          <a class="dropdown-item" href="#">
+            <i class="fa-solid fa-heart"></i> Lista de deseos
+          </a>
+          <a class="dropdown-item" href="#">
+            <i class="fa-solid fa-gear"></i> Configuración
+          </a>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item logout-item" (click)="logout()">
+            <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
+          </button>
+        </div>
+      </div>
+
+      <button routerLink="/carrito" class="btn-cart">
+        <i class="fa-solid fa-cart-shopping"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- SUBNAV -->
+  <nav class="subnav">
+    <a routerLink="/">Tu tienda</a>
+    <span class="breadcrumb-sep"><i class="fa-solid fa-chevron-right"></i></span>
+    <a href="#">Juegos</a>
+    <span class="breadcrumb-sep"><i class="fa-solid fa-chevron-right"></i></span>
+    <span class="breadcrumb-current">{{ juego.nombre }}</span>
+  </nav>
+
+  <!-- HERO BANNER -->
+  <div class="hero-banner">
+    <img [src]="juego.imagenHero" alt="{{ juego.nombre }}">
+    <div class="hero-gradient"></div>
+    <h1 class="hero-title">{{ juego.nombre }}</h1>
+  </div>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <div class="detalle-content">
+
+    <!-- COLUMNA IZQUIERDA -->
+    <div class="col-main">
+
+      <!-- SCREENSHOTS -->
+      <div class="screenshots-section">
+        <img class="screenshot-main" [src]="juego.screenshots[activeScreenshot]" alt="Screenshot">
+        <div class="screenshot-thumbs">
+          <img
+            *ngFor="let s of juego.screenshots; let i = index"
+            [src]="s"
+            [class.thumb-active]="activeScreenshot === i"
+            (click)="setScreenshot(i)"
+            alt="Screenshot {{ i + 1 }}">
+        </div>
+      </div>
+
+      <!-- TABS DE CONTENIDO -->
+      <div class="content-tabs">
+        <button class="ctab" [class.ctab-active]="activeTab === 'descripcion'" (click)="setTab('descripcion')">
+          Descripción
+        </button>
+        <button class="ctab" [class.ctab-active]="activeTab === 'resenas'" (click)="setTab('resenas')">
+          Reseñas <span class="ctab-count">{{ juego.reviewCount }}</span>
+        </button>
+        <button class="ctab" [class.ctab-active]="activeTab === 'requisitos'" (click)="setTab('requisitos')">
+          Requisitos del sistema
+        </button>
+      </div>
+
+      <!-- DESCRIPCION -->
+      <div class="tab-content" *ngIf="activeTab === 'descripcion'">
+        <p class="game-desc">{{ juego.descripcion }}</p>
+        <div class="features-list">
+          <h3>Características</h3>
+          <div class="features-grid">
+            <div class="feature-item" *ngFor="let f of juego.caracteristicas">
+              <i class="fa-solid fa-check"></i> {{ f }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESEÑAS -->
+      <div class="tab-content" *ngIf="activeTab === 'resenas'">
+        <div class="reviews-summary">
+          <div class="review-big">
+            <span class="review-score" [style.color]="juego.reviewColor">{{ juego.reviewScore }}</span>
+            <span class="review-total">{{ juego.reviewCount }} reseñas de usuarios</span>
+          </div>
+          <div class="review-bar-section">
+            <div class="review-bar-row">
+              <span>Positivas</span>
+              <div class="bar-wrap"><div class="bar positive" style="width: 91%"></div></div>
+              <span>91%</span>
+            </div>
+            <div class="review-bar-row">
+              <span>Negativas</span>
+              <div class="bar-wrap"><div class="bar negative" style="width: 9%"></div></div>
+              <span>9%</span>
+            </div>
+          </div>
+        </div>
+        <div class="review-cards">
+          <div class="review-card">
+            <div class="review-header">
+              <div class="review-avatar"><i class="fa-solid fa-user"></i></div>
+              <div>
+                <div class="reviewer-name">GamerPro2024</div>
+                <div class="review-date">12 Feb, 2024</div>
+              </div>
+              <span class="review-thumb positive"><i class="fa-solid fa-thumbs-up"></i> Recomendado</span>
+            </div>
+            <p class="review-text">"Increíble juego, los gráficos son espectaculares y la historia te atrapa desde el primer momento. El sistema de combate es fluido y satisfactorio. Sin duda uno de los mejores juegos del año."</p>
+            <div class="review-hours"><i class="fa-regular fa-clock"></i> 87 horas jugadas</div>
+          </div>
+          <div class="review-card">
+            <div class="review-header">
+              <div class="review-avatar"><i class="fa-solid fa-user"></i></div>
+              <div>
+                <div class="reviewer-name">NightWalker99</div>
+                <div class="review-date">3 Mar, 2024</div>
+              </div>
+              <span class="review-thumb positive"><i class="fa-solid fa-thumbs-up"></i> Recomendado</span>
+            </div>
+            <p class="review-text">"La ambientación cyberpunk está muy bien lograda. La ciudad se siente viva y hay muchísimo contenido por explorar. Totalmente vale el precio."</p>
+            <div class="review-hours"><i class="fa-regular fa-clock"></i> 124 horas jugadas</div>
+          </div>
+          <div class="review-card negative-review">
+            <div class="review-header">
+              <div class="review-avatar"><i class="fa-solid fa-user"></i></div>
+              <div>
+                <div class="reviewer-name">CriticalGamer</div>
+                <div class="review-date">28 Feb, 2024</div>
+              </div>
+              <span class="review-thumb negative"><i class="fa-solid fa-thumbs-down"></i> No recomendado</span>
+            </div>
+            <p class="review-text">"Buen juego pero tiene algunos bugs en las misiones secundarias. El rendimiento podría mejorar. Tiene potencial."</p>
+            <div class="review-hours"><i class="fa-regular fa-clock"></i> 34 horas jugadas</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REQUISITOS -->
+      <div class="tab-content" *ngIf="activeTab === 'requisitos'">
+        <div class="req-grid">
+          <div class="req-col">
+            <h3><i class="fa-solid fa-circle-minus"></i> Mínimos</h3>
+            <div class="req-item"><span>SO:</span> {{ juego.reqMin.os }}</div>
+            <div class="req-item"><span>Procesador:</span> {{ juego.reqMin.cpu }}</div>
+            <div class="req-item"><span>Memoria RAM:</span> {{ juego.reqMin.ram }}</div>
+            <div class="req-item"><span>Gráficos:</span> {{ juego.reqMin.gpu }}</div>
+            <div class="req-item"><span>Almacenamiento:</span> {{ juego.reqMin.almacenamiento }}</div>
+          </div>
+          <div class="req-col">
+            <h3><i class="fa-solid fa-circle-check"></i> Recomendados</h3>
+            <div class="req-item"><span>SO:</span> {{ juego.reqRec.os }}</div>
+            <div class="req-item"><span>Procesador:</span> {{ juego.reqRec.cpu }}</div>
+            <div class="req-item"><span>Memoria RAM:</span> {{ juego.reqRec.ram }}</div>
+            <div class="req-item"><span>Gráficos:</span> {{ juego.reqRec.gpu }}</div>
+            <div class="req-item"><span>Almacenamiento:</span> {{ juego.reqRec.almacenamiento }}</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- COLUMNA DERECHA - BUY BOX -->
+    <div class="col-sidebar">
+
+      <div class="buy-box">
+        <img class="game-cover" [src]="juego.imagen" alt="{{ juego.nombre }}">
+
+        <div class="buy-box-info">
+          <div class="buy-tags">
+            <span *ngFor="let tag of juego.tags">{{ tag }}</span>
+          </div>
+
+          <div class="buy-reviews">
+            <i class="fa-solid fa-thumbs-up" [style.color]="juego.reviewColor"></i>
+            <span [style.color]="juego.reviewColor">{{ juego.reviewScore }}</span>
+            <span class="review-sub">({{ juego.reviewCount }})</span>
+          </div>
+
+          <div class="buy-meta">
+            <div class="meta-row">
+              <span class="meta-label">Desarrollador</span>
+              <span class="meta-val">{{ juego.developer }}</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label">Publisher</span>
+              <span class="meta-val">{{ juego.publisher }}</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label">Lanzamiento</span>
+              <span class="meta-val">{{ juego.fechaLanzamiento }}</span>
+            </div>
+          </div>
+
+          <div class="platform-row">
+            <span *ngFor="let p of juego.plataformas" class="platform-badge">
+              <i class="fa-brands fa-windows" *ngIf="p === 'Windows'"></i>
+              <i class="fa-brands fa-apple" *ngIf="p === 'macOS'"></i>
+              <i class="fa-brands fa-linux" *ngIf="p === 'Linux'"></i>
+              {{ p }}
+            </span>
+          </div>
+        </div>
+
+        <div class="price-box">
+          <div class="price-row">
+            <div class="discount-pill">-{{ juego.descuento }}%</div>
+            <div class="prices">
+              <span class="orig">${{ juego.precioOriginal.toFixed(2) }}</span>
+              <span class="sale">${{ juego.precio.toFixed(2) }}</span>
+            </div>
+          </div>
+          <!-- Logueado: botones de compra -->
+          <ng-container *ngIf="user">
+            <button class="btn-buy" (click)="addToCart()">
+              <i class="fa-solid fa-cart-plus"></i>
+              Agregar al carrito
+            </button>
+            <button class="btn-wishlist">
+              <i class="fa-regular fa-heart"></i>
+              Agregar a favoritos
+            </button>
+            <p class="buy-note">
+              <i class="fa-solid fa-shield-halved"></i>
+              Compra segura &bull; Reembolso en 14 días
+            </p>
+          </ng-container>
+
+          <!-- Sin sesión: aviso de login -->
+          <div class="buy-login-prompt" *ngIf="!user">
+            <p class="prompt-text">
+              <i class="fa-solid fa-lock"></i>
+              Inicia sesión para comprar este juego
+            </p>
+            <button class="btn-buy" routerLink="/login">
+              <i class="fa-solid fa-right-to-bracket"></i>
+              Iniciar sesión
+            </button>
+            <button class="btn-wishlist" routerLink="/registrar">
+              <i class="fa-solid fa-user-plus"></i>
+              Crear cuenta gratis
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- NOTIFICACION -->
+<div class="notification" *ngIf="showNotification">
+  <i class="fa-solid fa-circle-check"></i>
+  <strong>{{ juego.nombre }}</strong> agregado al carrito
+</div>
